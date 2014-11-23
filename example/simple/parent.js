@@ -1,4 +1,4 @@
-var RPC = require('../');
+var RPC = require('../../');
 var frame = document.querySelector('iframe');
 var usrc = new URL(frame.getAttribute('src'));
 var origin = usrc.protocol + '//' + usrc.host;

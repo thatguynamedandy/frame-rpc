@@ -1,4 +1,4 @@
-var RPC = require('../');
+var RPC = require('../../');
 var origin = document.referrer;
 
 var rpc = RPC(window, window.parent, origin, {
