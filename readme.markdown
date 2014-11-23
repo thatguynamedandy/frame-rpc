@@ -2,6 +2,8 @@
 
 rpc between iframes and windows using postMessage with no serialization
 
+[![build status](https://secure.travis-ci.org/substack/frame-rpc.png)](http://travis-ci.org/substack/frame-rpc)
+
 # example
 
 expose a method from a page that will be loaded as an iframe:
