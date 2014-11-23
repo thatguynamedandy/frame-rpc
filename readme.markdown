@@ -1,6 +1,6 @@
 # frame-rpc
 
-rpc for postMessage events without serialization
+rpc between iframes and windows using postMessage with no serialization
 
 # example
 
