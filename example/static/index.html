@@ -1,0 +1,18 @@
+<html>
+  <style>
+    body {
+      font-size: 32px;
+    }
+    iframe {
+      width: 40px;
+      height: 40px;
+      border: 1px solid magenta;
+      vertical-align: middle;
+    }
+  </style>
+  <body>
+    beep(<iframe src="http://localhost:12002/frame.html"></iframe>) =
+    <span id="result"></span>
+    <script src="parent.js"></script>
+  </body>
+</html>

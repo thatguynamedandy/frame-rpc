@@ -1,3 +1,6 @@
+var has = require('has');
+var isarray = require('isarray');
+
 var VERSION = '1.0.0';
 
 module.exports = RPC;
@@ -8,16 +11,18 @@ function RPC (src, dst, origin, methods) {
     this.src = src;
     this.dst = dst;
     
-    this._methods = methods;
+    var uorigin = new URL(origin);
+    this.origin = uorigin.protocol + '//' + uorigin.host;
+    
+    this._methods = methods || {};
     this._sequence = 0;
     this._callbacks = {};
-    this._queue = [];
     
-    this.src.addEventListener('postMessage', function (ev) {
-        if (ev.origin !== origin) return;
+    this.src.addEventListener('message', function (ev) {
+        if (ev.origin !== self.origin) return;
         if (!ev.data || typeof ev.data !== 'object') return;
-        if (!ev.data.protocol = 'frame-rpc') return;
-        if (!ev.data.arguments) return;
+        if (ev.data.protocol !== 'frame-rpc') return;
+        if (!isarray(ev.data.arguments)) return;
         self._handle(ev.data);
     });
 }
@@ -28,11 +33,6 @@ RPC.prototype.call = function (method) {
 };
 
 RPC.prototype.apply = function (method, args) {
-    if (!this.rtoken) {
-        this._queue.push([ method, args ]);
-        return;
-    }
-    
     var seq = this._sequence ++;
     if (typeof args[args.length - 1] === 'function') {
         this._callbacks[seq] = args[args.length - 1];
@@ -44,25 +44,26 @@ RPC.prototype.apply = function (method, args) {
         sequence: seq,
         method: method, 
         arguments: args
-    });
+    }, this.origin);
 };
 
 RPC.prototype._handle = function (msg) {
-    if (msg.method) {
-        if (!Object.hasOwnProperty.call(this.methods, msg.method)) return;
+    var self = this;
+    if (has(msg, 'method')) {
+        if (!has(this._methods, msg.method)) return;
         var args = msg.arguments.concat(function () {
             self.dst.postMessage({
                 protocol: 'frame-rpc',
                 version: VERSION,
                 response: msg.sequence,
                 arguments: [].slice.call(arguments)
-            });
+            }, self.origin);
         });
-        this.methods[msg.method].apply(this.methods, msg.arguments);
+        this._methods[msg.method].apply(this._methods, args);
     }
-    else if (msg.response) {
-        var cb = this._callbacks[msg._sequence];
-        delete this._callbacks[msg._sequence];
-        cb.apply(null, msg.arguments);
+    else if (has(msg, 'response')) {
+        var cb = this._callbacks[msg.response];
+        delete this._callbacks[msg.response];
+        if (cb) cb.apply(null, msg.arguments);
     }
 };
