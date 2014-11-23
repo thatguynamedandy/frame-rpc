@@ -48,7 +48,8 @@ Create a new `rpc` instance that listens for `'message'` events on `src`
 and writes data to `dst.postMessage()`.
 
 `origin` must be the URL of `dst`. Any messages from `src` that do not match
-`origin` are ignored.
+`origin` are ignored. If `origin` is `'*'`, the location of incoming messages is
+not checked and the output messages are sent to anyone listening. Use carefully.
 
 Any `methods` defined will be exposed to the other endpoint.
 
