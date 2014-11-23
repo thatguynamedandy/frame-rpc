@@ -11,15 +11,20 @@ function RPC (src, dst, origin, methods) {
     this.src = src;
     this.dst = dst;
     
-    var uorigin = new URL(origin);
-    this.origin = uorigin.protocol + '//' + uorigin.host;
+    if (origin === '*') {
+        this.origin = '*';
+    }
+    else {
+        var uorigin = new URL(origin);
+        this.origin = uorigin.protocol + '//' + uorigin.host;
+    }
     
     this._methods = methods || {};
     this._sequence = 0;
     this._callbacks = {};
     
     this.src.addEventListener('message', function (ev) {
-        if (ev.origin !== self.origin) return;
+        if (self.origin !== '*' && ev.origin !== self.origin) return;
         if (!ev.data || typeof ev.data !== 'object') return;
         if (ev.data.protocol !== 'frame-rpc') return;
         if (!isarray(ev.data.arguments)) return;
