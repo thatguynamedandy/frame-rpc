@@ -23,14 +23,21 @@ function RPC (src, dst, origin, methods) {
     this._sequence = 0;
     this._callbacks = {};
     
-    this.src.addEventListener('message', function (ev) {
+    this._onmessage = function (ev) {
+        if (self._destroyed) return;
         if (self.origin !== '*' && ev.origin !== self.origin) return;
         if (!ev.data || typeof ev.data !== 'object') return;
         if (ev.data.protocol !== 'frame-rpc') return;
         if (!isarray(ev.data.arguments)) return;
         self._handle(ev.data);
-    });
+    };
+    this.src.addEventListener('message', this._onmessage);
 }
+
+RPC.prototype.destroy = function () {
+    this._destroyed = true;
+    this.src.removeEventListener('message', this._onmessage);
+};
 
 RPC.prototype.call = function (method) {
     var args = [].slice.call(arguments, 1);
@@ -38,6 +45,7 @@ RPC.prototype.call = function (method) {
 };
 
 RPC.prototype.apply = function (method, args) {
+    if (this._destroyed) return;
     var seq = this._sequence ++;
     if (typeof args[args.length - 1] === 'function') {
         this._callbacks[seq] = args[args.length - 1];
@@ -54,6 +62,7 @@ RPC.prototype.apply = function (method, args) {
 
 RPC.prototype._handle = function (msg) {
     var self = this;
+    if (self._destroyed) return;
     if (has(msg, 'method')) {
         if (!has(this._methods, msg.method)) return;
         var args = msg.arguments.concat(function () {
