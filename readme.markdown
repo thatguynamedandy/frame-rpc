@@ -70,6 +70,10 @@ Call a `method` on the remote endpoint with an array of arguments `args`.
 
 The last argument can be a callback for receiving a reply.
 
+## rpc.destroy()
+
+Remove the event listeners and don't respond to any more messages.
+
 # protocol
 
 The protocol is designed to only listen to frame-rpc messages because often
