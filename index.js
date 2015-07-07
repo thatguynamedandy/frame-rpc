@@ -19,7 +19,6 @@ function RPC (src, dst, origin, methods) {
         this.origin = uorigin.protocol + '//' + uorigin.host;
     }
     
-    this._methods = methods || {};
     this._sequence = 0;
     this._callbacks = {};
     
@@ -32,6 +31,10 @@ function RPC (src, dst, origin, methods) {
         self._handle(ev.data);
     };
     this.src.addEventListener('message', this._onmessage);
+    this._methods = typeof methods === 'function'
+        ? methods(this)
+        : methods || {};
+    ;
 }
 
 RPC.prototype.destroy = function () {
