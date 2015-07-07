@@ -1,0 +1,11 @@
+{
+  "scripts": {
+    "build-frame": "browserify frame.js -o static/frame.js",
+    "build-parent": "browserify parent.js -o static/parent.js",
+    "build": "npm run build-frame & npm run build-parent",
+    "watch-frame": "watchify frame.js -o static/frame.js -dv",
+    "watch-parent": "watchify parent.js -o static/parent.js -dv",
+    "watch": "npm run watch-frame & npm run watch-parent",
+    "start": "ecstatic -p 12002 static & ecstatic -p 12001 static"
+  }
+}
