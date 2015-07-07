@@ -42,7 +42,7 @@ frame.addEventListener('load', function (ev) {
 var RPC = require('frame-rpc')
 ```
 
-## var rpc = RPC(src, dst, origin, methods={})
+## var rpc = RPC(src, dst, origin, methods)
 
 Create a new `rpc` instance that listens for `'message'` events on `src`
 and writes data to `dst.postMessage()`.
@@ -52,6 +52,9 @@ and writes data to `dst.postMessage()`.
 not checked and the output messages are sent to anyone listening. Use carefully.
 
 Any `methods` defined will be exposed to the other endpoint.
+
+`methods` can be an object with names that map to methods or a function
+`methods(rpc)` that returns an object to map names to methods.
 
 The last argument of each function exposed in `methods` can be a callback to
 send a response.
