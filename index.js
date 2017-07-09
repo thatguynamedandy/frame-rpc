@@ -1,5 +1,6 @@
-var has = require('has');
 var isarray = require('isarray');
+var hasf = Object.prototype.hasOwnProperty;
+function has (obj, key) { return hasf.call(obj,key) }
 
 var VERSION = '1.0.0';
 
