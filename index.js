@@ -11,11 +11,12 @@ function RPC (src, dst, origin, methods) {
     var self = this;
     this.src = src;
     this.dst = dst;
+    this._dstIsWorker = /Worker/.test(dst);
     
     if (origin === '*') {
         this.origin = '*';
     }
-    else {
+    else if (origin) {
         var uorigin = new URL(origin);
         this.origin = uorigin.protocol + '//' + uorigin.host;
     }
@@ -55,13 +56,22 @@ RPC.prototype.apply = function (method, args) {
         this._callbacks[seq] = args[args.length - 1];
         args = args.slice(0, -1);
     }
-    this.dst.postMessage({
+    this._dstPostMessage({
         protocol: 'frame-rpc',
         version: VERSION,
         sequence: seq,
         method: method, 
         arguments: args
-    }, this.origin);
+    });
+};
+
+RPC.prototype._dstPostMessage = function (msg) {
+    if (this._dstIsWorker) {
+        this.dst.postMessage(msg);
+    }
+    else {
+        this.dst.postMessage(msg, this.origin);
+    }
 };
 
 RPC.prototype._handle = function (msg) {
@@ -70,12 +80,12 @@ RPC.prototype._handle = function (msg) {
     if (has(msg, 'method')) {
         if (!has(this._methods, msg.method)) return;
         var args = msg.arguments.concat(function () {
-            self.dst.postMessage({
+            self._dstPostMessage({
                 protocol: 'frame-rpc',
                 version: VERSION,
                 response: msg.sequence,
                 arguments: [].slice.call(arguments)
-            }, self.origin);
+            });
         });
         this._methods[msg.method].apply(this._methods, args);
     }
