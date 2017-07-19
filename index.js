@@ -11,7 +11,6 @@ function RPC (src, dst, origin, methods) {
     var self = this;
     this.src = src;
     this.dst = dst;
-    this._dstIsWorker = /Worker/.test(dst);
     
     if (origin === '*') {
         this.origin = '*';
@@ -66,12 +65,7 @@ RPC.prototype.apply = function (method, args) {
 };
 
 RPC.prototype._dstPostMessage = function (msg) {
-    if (this._dstIsWorker) {
-        this.dst.postMessage(msg);
-    }
-    else {
-        this.dst.postMessage(msg, this.origin);
-    }
+    this.dst.postMessage(msg, this.origin);
 };
 
 RPC.prototype._handle = function (msg) {
