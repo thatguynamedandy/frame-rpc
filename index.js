@@ -12,18 +12,19 @@ function RPC (src, dst, origin, methods) {
     this.src = src;
     this.dst = dst;
     this._dstIsWorker = /Worker/.test(dst);
-    
+
     if (origin === '*') {
         this.origin = '*';
     }
     else if (origin) {
-        var uorigin = new URL(origin);
-        this.origin = uorigin.protocol + '//' + uorigin.host;
+        var link = document.createElement('a')
+        link.setAttribute('href', origin);
+        this.origin = link.protocol + '//' + link.host;
     }
-    
+
     this._sequence = 0;
     this._callbacks = {};
-    
+
     this._onmessage = function (ev) {
         if (self._destroyed) return;
         if (self.origin !== '*' && ev.origin !== self.origin) return;
