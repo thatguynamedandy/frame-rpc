@@ -1,13 +1,14 @@
 var RPC = require('../');
 var test = require('tape');
 var url = require('url');
+var jsdom = require('jsdom');
 var EventEmitter = require('events').EventEmitter;
 
-URL = function (s) { return url.parse(s) }
+document = (new jsdom.JSDOM()).window.document;
 
 test('fn methods', function (t) {
     t.plan(6);
-    
+
     var frame = {
         _ev: new EventEmitter,
         addEventListener: function (name, cb) {
@@ -22,7 +23,7 @@ test('fn methods', function (t) {
         },
         origin: 'http://frame.com'
     };
-    
+
     var parent = {
         _ev: new EventEmitter,
         addEventListener: function (name, cb) {
@@ -37,7 +38,7 @@ test('fn methods', function (t) {
         },
         origin: 'http://parent.com'
     };
-    
+
     frame.rpc = RPC(frame, parent, parent.origin, function (rpc) {
         t.equal(typeof rpc.call, 'function');
         t.equal(rpc.origin, parent.origin);
@@ -48,7 +49,7 @@ test('fn methods', function (t) {
             }
         };
     });
-    
+
     parent.rpc = RPC(parent, frame, frame.origin);
     parent.rpc.call('beep', 5, function (result) {
         t.equal(result, 555);

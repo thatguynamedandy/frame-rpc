@@ -11,19 +11,19 @@ function RPC (src, dst, origin, methods) {
     var self = this;
     this.src = src;
     this.dst = dst;
-    this._dstIsWorker = /Worker/.test(dst);
-    
+
     if (origin === '*') {
         this.origin = '*';
     }
     else if (origin) {
-        var uorigin = new URL(origin);
-        this.origin = uorigin.protocol + '//' + uorigin.host;
+        var link = document.createElement('a')
+        link.setAttribute('href', origin);
+        this.origin = link.protocol + '//' + link.hostname;
     }
-    
+
     this._sequence = 0;
     this._callbacks = {};
-    
+
     this._onmessage = function (ev) {
         if (self._destroyed) return;
         if (self.origin !== '*' && ev.origin !== self.origin) return;
@@ -60,18 +60,13 @@ RPC.prototype.apply = function (method, args) {
         protocol: 'frame-rpc',
         version: VERSION,
         sequence: seq,
-        method: method, 
+        method: method,
         arguments: args
     });
 };
 
 RPC.prototype._dstPostMessage = function (msg) {
-    if (this._dstIsWorker) {
-        this.dst.postMessage(msg);
-    }
-    else {
-        this.dst.postMessage(msg, this.origin);
-    }
+    this.dst.postMessage(msg, this.origin);
 };
 
 RPC.prototype._handle = function (msg) {
