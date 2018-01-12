@@ -18,7 +18,7 @@ function RPC (src, dst, origin, methods) {
     else if (origin) {
         var link = document.createElement('a')
         link.setAttribute('href', origin);
-        this.origin = link.protocol + '//' + link.hostname;
+        this.origin = link.protocol + '//' + link.host;
     }
 
     this._sequence = 0;
